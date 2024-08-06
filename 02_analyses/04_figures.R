@@ -7,7 +7,6 @@ library(sf)
 library(ggmap)
 library(ggspatial)
 library(magick)
-library(broom.mixed)
 
 tree <- read_rds(here("01_data", "tree_cores_char.rds"))
 forchar <- read_csv(here("01_data", "for_char.csv"))
@@ -531,68 +530,6 @@ c_clim_net <- image_composite(
 image_write(c_clim_net, here(
   "03_results", "fig2.jpg"
 ), density = 1200)
-
-
-# figure 3 ----------------------------------------------------------------
-
-tidy_model <- function(model) {
-  tidy(model) |>
-    filter(term != "(Intercept)") |>
-    mutate(lci = estimate - 1.96 * std.error,
-           uci = estimate + 1.96 * std.error) |>
-    dplyr::select(var = term, coef = estimate, lci, uci)
-}
-
-mc4_tidy <- tidy_model(mc4)
-
-names(mc4_tidy)
-
-mc4_tidy_ren <- mc4_tidy |>
-  filter(
-    var == "meand_std" |
-      var == "cvd_std" |
-      var == "prec_std" |
-      var == "frost_std" |
-      var == "heat_std"
-  ) |>
-  mutate(
-    var = recode_factor(
-      var,
-      "meand_std" = "Mean tree size",
-      "cvd_std" = "Tree size heterogeneity",
-      "prec_std" = "Annual precipitation",
-      "heat_std" = "Heatwaves frequency",
-      "frost_std" = "Late spring frosts frequency")
-  )
-
-forest_plot <- function(data) {
-  ggplot(data, aes(
-    y = var,
-    x = coef,
-    xmin = lci,
-    xmax = uci
-  )) +
-    geom_pointrange() +
-    geom_vline(xintercept = 0, linetype = "dashed") +
-    ylab("") +
-    xlab(expression("Coefficient")) +
-    theme(
-      panel.grid.major = element_line(colour = "grey90", size = 0.5),
-      panel.background = element_blank(),
-      axis.text = element_text(size = 11),
-      legend.key = element_blank()
-    )
-}
-
-fig3 <- forest_plot(mc4_tidy_ren)
-
-ggsave(
-  plot = fig3,
-  here("03_results", "fig3.jpg"),
-  width = 7,
-  height = 4,
-  dpi = 1200
-)
 
 
 # SI figures --------------------------------------------------------------
