@@ -41,19 +41,44 @@ species <- for_char_d |>
   rename(species = n)
 
 ## number of dead trees in each stand ------------------------------------
+# number of trees/ha
 dead <- for_char_d |>
-  group_by(tree_typo) |>
+  group_by(tree_cored, tree_typo) |>
   count(dead) |>
   filter(dead == T) |>
   select(!dead) |>
-  rename(dead = n)
-
-## ingrowth in each stand (dbh 7.5-12.5cm) -------------------------------
-ingrowth <- for_char_d |>
-  filter(dbh >= 7.5 & dbh <= 12.5) |>
+  rename(n_dead = n) |> 
   group_by(tree_typo) |>
-  count() |>
-  rename(ingrowth = n)
+  summarise(mean_n_dead = mean(n_dead)) 
+
+dead_ha <- dead |> 
+  mutate(
+    area = pi * 10 ^ 2,
+    mean_n_dead_ha = round(10000 * mean_n_dead / area)
+  ) |> 
+  select(
+    tree_typo,
+    mean_n_dead_ha
+  )
+
+## sapling in each stand (dbh 7.5-12.5cm) -------------------------------
+# number of trees/ha
+sapling <- for_char_d |>
+  filter(dbh >= 7.5 & dbh <= 12.5) |>
+  group_by(tree_cored, tree_typo) |>
+  count(name = "n_sapling") |> 
+  group_by(tree_typo) |>
+  summarise(mean_n_sapling = mean(n_sapling)) 
+
+sapling_ha <- sapling |> 
+  mutate(
+    area = pi * 10 ^ 2,
+    mean_n_sapling_ha = round(10000 * mean_n_sapling / area)
+  ) |> 
+  select(
+    tree_typo,
+    mean_n_sapling_ha
+  )
 
 ## mean tree size and standard deviation of tree size in each stand-------------------------
 tree_size <- for_char_d |>
@@ -74,13 +99,25 @@ for_char_d |>
   )
 
 ## number of trees ---------------------------------
+# number of trees/ha
 individuals <- for_char_d |>
+  group_by(tree_cored, tree_typo) |>
+  count(name = "n_individuals") |> 
   group_by(tree_typo) |>
-  count() |>
-  rename(individuals = n)
+  summarise(mean_n_individuals = mean(n_individuals)) 
 
+individuals_ha <- individuals |> 
+  mutate(
+    area = pi * 10 ^ 2,
+    mean_n_individuals_ha = round(10000 * mean_n_individuals / area)
+    ) |> 
+  select(
+    tree_typo,
+    mean_n_individuals_ha
+  )
+  
 for_char_data <- list(
-  individuals, tree_size, species, ingrowth, dead
+  individuals_ha, tree_size, species, sapling_ha, dead_ha
   ) |>
   reduce(left_join, by = "tree_typo")
 
@@ -114,11 +151,11 @@ table_S1 <- for_char_data |>
   cols_label(
     tree_typo = "Land- and forest-use legacies",
     species = "No. species",
-    dead = "No. dead trees",
-    ingrowth = "No. recruited trees",
+    mean_n_dead_ha = "No. dead trees/ha",
+    mean_n_sapling_ha = "No. saplings/ha",
     dbh_mean = "Mean d.b.h.",
     dbh_sd = "SD d.b.h.",
-    individuals = "No. trees"
+    mean_n_individuals_ha = "No. trees/ha"
   ) |>
   tab_style(
     style = list(
