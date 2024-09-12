@@ -35,10 +35,11 @@ for_char_d |>
 
 ## number of tree species in each stand ----------------------------------
 species <- for_char_d |>
-  group_by(tree_typo) |>
-  distinct(species) |>
+  group_by(site, tree_typo) |>
+  distinct(species, .keep_all = T) |>
   count() |>
-  rename(species = n)
+  group_by(tree_typo) |>
+  summarise(mean_species = round(mean(n)))
 
 ## number of dead trees in each stand ------------------------------------
 # number of trees/ha
@@ -150,7 +151,7 @@ table_S1 <- for_char_data |>
   ) |>
   cols_label(
     tree_typo = "Land- and forest-use legacies",
-    species = "No. species",
+    mean_species = "No. species",
     mean_n_dead_ha = "No. dead trees/ha",
     mean_n_sapling_ha = "No. saplings/ha",
     dbh_mean = "Mean d.b.h.",
