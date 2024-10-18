@@ -235,6 +235,16 @@ ggsave(
   width = 4, height = 2
 )
 
+# to upload it to the author center of the journal
+# i need to resize the figure
+fig1_pic <- image_read(here("03_results", "fig1_pic.jpg"))
+
+fig1_pic_res <- image_resize(fig1_pic, "80%")
+
+image_write(fig1_pic_res, here(
+  "03_results", "fig1_picthanks!.jpg"
+), density = 1200)
+
 
 # figure 2 ----------------------------------------------------------------
 
@@ -519,7 +529,7 @@ net_nodense_c <- image_crop(net_nodense, "400x400+50")
 
 c_clim_nodense <- image_composite(
   c_clim, image_scale(net_nodense_c, "x850"),
-  offset = "+3250+2350"
+  offset = "+3250+2250"
 )
 
 c_clim_net <- image_composite(
@@ -527,7 +537,11 @@ c_clim_net <- image_composite(
   offset = "+5400+000"
 )
 
-image_write(c_clim_net, here(
+# to upload it to the author center of the journal
+# i need to resize the figure
+c_clim_net_res <- image_resize(c_clim_net, "40%")
+
+image_write(c_clim_net_res, here(
   "03_results", "fig2.jpg"
 ), density = 1200)
 

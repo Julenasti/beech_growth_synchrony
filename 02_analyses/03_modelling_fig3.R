@@ -137,6 +137,8 @@ moran.test(
 
 summary(mod_str_cc_x1)
 
+r2(mod_str_cc_x1)
+
 
 # model evaluation --------------------------------------------------------
 
@@ -201,6 +203,7 @@ ggsave(
   plot = fig3,
   here("03_results", "fig3.jpg"),
   width = 6,
-  height = 4
+  height = 4,
+  dpi = 600
 )
 
