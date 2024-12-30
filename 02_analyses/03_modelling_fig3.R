@@ -167,7 +167,7 @@ predict_str_cc_x1 <- predict_response(
 )
 
 plot_predict_str_cc_x1 <- plot(
-  predict_str_cc_x1, show_data = T,
+  predict_str_cc_x1,
   alpha = .15,
   jitter = F,
   colors = "circus"
